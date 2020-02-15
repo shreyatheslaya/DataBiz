@@ -91,8 +91,8 @@ class Importer():
         print('MADE THREADS')
         for i, thread in enumerate(threads):
             thread.start()
-            for i, thread in enumerate(threads):
-                thread.join()
+        for i, thread in enumerate(threads):
+            thread.join()
 
     # get the city infor given a city name and a state
     def getCityInfo(self, state, city):
