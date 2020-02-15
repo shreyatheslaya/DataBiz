@@ -38,8 +38,8 @@ class Importer():
 
     def __init__(self):
         self.getProxies()
-        # self.getAllCities([self.states[0]])
-        # self.df.to_csv('out.csv', sep='\t', encoding='utf-8')
+        self.getAllCities([self.states[0]])
+        self.df.to_csv('out.csv', sep='\t', encoding='utf-8')
 
 
     def getProxies(self):
