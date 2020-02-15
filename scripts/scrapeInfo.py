@@ -94,7 +94,6 @@ class Importer():
             r = requests.get(requestURL)
             r = r.content
             soup = BeautifulSoup(r, features='html.parser')
-            print(state, city, soup.prettify)
             self.extractCityInformation(state, city, soup)
             print('Got City:\t{}'.format(city))
         except:
