@@ -106,6 +106,7 @@ class Importer():
         responses = {}
 
         for dimension in self.dimensions:
+            print('DIMENSION:\t{}'.format(soup.find_all('section', {'class' : dimension})[0].text))
             try:
                 respones[dimension] = soup.find_all('section', {'class' : dimension})[0].text
             except:
