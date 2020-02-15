@@ -7,7 +7,7 @@ import random
 class Importer():
 
     # pandas dataframe that we are goin to add all city data to
-    dimensions = ['states', 'city', 'cityPopulation', 'populationBySex', 'medianAge', 'zipCodes', 'medianIncome', 'costOfLiving']
+    dimensions = ['state', 'city', 'cityPopulation', 'populationBySex', 'medianAge', 'zipCodes', 'medianIncome', 'costOfLiving']
     df = pd.DataFrame(columns=dimensions)
 
     # base url of the website
@@ -80,7 +80,7 @@ class Importer():
         thread the gathering of individual city information from every
         city in the list of cities for a given state
         '''
-        threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state][:5]]
+        threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state]]
         print('MADE THREADS')
         for i, thread in enumerate(threads):
             thread.start()
@@ -107,19 +107,26 @@ class Importer():
             cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
         except:
             cityPopulation = 'NaN'
-        # for dimension in self.dimensions[2:]:
-            # populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
-            # medianAge = soup.find_all('section', {'class':'median-age'})[0].text
-            # zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
-            # medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
-            # costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
-            # print(cityPopulation)
-            # print(populationBySex)
-            # print('DIMENSION:\t{}'.format(soup.find_all('section', {'class' : dimension})[0].text))
-            # try:
-            #     respones[dimension] = soup.find_all('section', {'class' : dimension})[0].text
-            # except:
-            #     response[dimension] = 'NaN'
+        try:
+            populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
+        except:
+            populationBySex = 'NaN'
+        try:
+            medianAge = soup.find_all('section', {'class':'median-age'})[0].text
+        except:
+            medianAge = 'NaN'
+        try:
+            zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
+        except:
+            zipCodes = 'NaN'
+        try:
+            medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
+        except:
+            medianIncome = 'NaN'
+        try:
+            costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
+        except:
+            costOfLiving = 'NaN'
 
 
         self.df = self.df.append({  'state'                 : state,
