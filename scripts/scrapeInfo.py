@@ -94,6 +94,7 @@ class Importer():
             r = requests.get(requestURL)
             r = r.content
             soup = BeautifulSoup(r, features='html.parser')
+            print(state, city, soup.prettify)
             self.extractCityInformation(state, city, soup)
             print('Got City:\t{}'.format(city))
         except:
@@ -117,15 +118,6 @@ class Importer():
         # medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
         # costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
 
-        # for dimension in self.dimensions:
-        #     response[dimension] = dimension
-        # for dimension in self.dimensions:
-        #     try:
-        #         response[dimension] = soup.find_all('section', {'class' : dimension})[0].text
-        #     except:
-        #         print('ERROR NAN')
-        #         response[dimension] = 'NaN'
-
         self.df = self.df.append({  'state'                 : response['state'],
                                     'city'                  : response['city'],
                                     'cityPopulation'        : response['cityPopulation'],
@@ -138,4 +130,3 @@ class Importer():
 
 if __name__ == '__main__':
     i = Importer()
-    # i.getAllCities([i.states[0]])
