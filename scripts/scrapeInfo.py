@@ -29,7 +29,7 @@ class Importer():
 
     def __init__(self):
         self.getProxies()
-        self.getAllCities([self.states[0]])
+        self.getAllCities(self.states)
         self.df.to_csv('out.csv')
 
 
