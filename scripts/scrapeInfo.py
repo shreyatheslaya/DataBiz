@@ -15,8 +15,8 @@ class Importer():
     '''
 
     # pandas dataframe that we are goin to add all city data to
-    # dimensions = ['cityPopulation', 'populationBySex', 'medianAge', 'zipCodes', 'medianIncome', 'costOfLiving']
-    dimensions = ['state', 'city', 'page']
+    dimensions = ['states', 'city', 'cityPopulation', 'populationBySex', 'medianAge', 'zipCodes', 'medianIncome', 'costOfLiving']
+    # dimensions = ['state', 'city', 'page']
     df = pd.DataFrame(columns=dimensions)
 
     # base url of the website
@@ -109,16 +109,12 @@ class Importer():
 
     # function to cleanse the soup of the webpage
     def extractCityInformation(self, state, city, soup):
-        response = {'state' : state,
-                    'city'  : city,
-                    'page'  : soup}
-        self.df = self.df.append(response, ignore_index=True)
-        # cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
-        # populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
-        # medianAge = soup.find_all('section', {'class':'median-age'})[0].text
-        # zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
-        # medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
-        # costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
+        cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
+        populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
+        medianAge = soup.find_all('section', {'class':'median-age'})[0].text
+        zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
+        medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
+        costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
         # for dimension in self.dimensions:
         #     response[dimension] = dimension
         # for dimension in self.dimensions:
@@ -128,13 +124,15 @@ class Importer():
         #         print('ERROR NAN')
         #         response[dimension] = 'NaN'
 
-        # self.df = self.df.append({'cityPopulation'  : response['cityPopulation'],
-        #                     'populationBySex'       : response['populationBySex'],
-        #                     'medianAge'             : response['medianAge'],
-        #                     'zipCodes'              : response['zipCodes'],
-        #                     'medianIncome'          : response['medianIncome'],
-        #                     'costOfLiving'          : response['costOfLiving']
-        #                     }, ignore_index=True)
+        self.df = self.df.append({  'state'                 : state,
+                                    'city'                  : city,
+                                    'cityPopulation'        : cityPopulation,
+                                    'populationBySex'       : populationBySex,
+                                    'medianAge'             : medianAge,
+                                    'zipCodes'              : zipCodes,
+                                    'medianIncome'          : medianIncome,
+                                    'costOfLiving'          : costOfLiving
+                            }, ignore_index=True)
 
 if __name__ == '__main__':
     i = Importer()
