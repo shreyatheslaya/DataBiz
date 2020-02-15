@@ -2,10 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import threading
 import pandas as pd
-# import RandomHeaders
-import random
-
-# grey_harvest = imp.load_source('grey_harvest', '~/grey_harvest')
 
 class Importer():
 
@@ -75,9 +71,7 @@ class Importer():
         proxy = self.proxies[random.randint(0, len(self.proxies))]
         proxyDict = {'https': 'https://' + proxy['ip'] + ':' + proxy['port']}
         try:
-            print(proxyDict)
-            print(requestURL)
-            r = requests.get(requestURL, proxies=proxyDict, timeout=10)
+            r = requests.get(requestURL)
             r = r.content
             soup = BeautifulSoup(r, features='html.parser')
             tds = soup.find_all('td')
@@ -89,13 +83,12 @@ class Importer():
                             if '<a href=\"/' not in str(href):
                                 self.citiesPerState[state].append(href.get('href'))
 
-                                print(self.citiesPerState)
-
                                 '''
                                 thread the gathering of individual city information from every
                                 city in the list of cities for a given state
                                 '''
                                 threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state]]
+                                print('MADE THREADS')
                                 for i, thread in enumerate(threads):
                                     thread.start()
                                     for i, thread in enumerate(threads):
