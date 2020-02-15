@@ -107,7 +107,7 @@ class Importer():
 
         for dimension in self.dimensions:
             try:
-                respones[dimension] = soup.find_all('section', {'class' : 'city-population'})[0].text
+                respones[dimension] = soup.find_all('section', {'class' : dimension})[0].text
             except:
                 response[dimension] = 'NaN'
 
