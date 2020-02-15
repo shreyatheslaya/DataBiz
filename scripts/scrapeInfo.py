@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import threading
 import pandas as pd
+import RandomHeaders
+
+# grey_harvest = imp.load_source('grey_harvest', '~/grey_harvest')
 
 class Importer():
 
@@ -15,7 +18,8 @@ class Importer():
     '''
 
     # pandas dataframe that we are goin to add all city data to
-    df = pd.DataFrame(columns=['cityPopulation', 'populationBySex', 'medianAge', 'zipCodes', 'medianIncome', 'costOfLiving'])
+    dimensions = ['cityPopulation', 'populationBySex', 'medianAge', 'zipCodes', 'medianIncome', 'costOfLiving']
+    df = pd.DataFrame(columns=dimensions)
 
     # base url of the website
     homeURL = 'http://www.city-data.com/city/'
@@ -33,17 +37,29 @@ class Importer():
     citiesPerState = {}
 
     def __init__(self):
-        # self.makeAllRequests(self.states)
-        self.getAllCities(self.states[0])
+        self.getAllCities([self.states[0]])
+        self.df.to_csv('out.csv', sep='\t', encoding='utf-8')
+
+    # make all requests for a state to get an href to every city in every state
+    def getAllCities(self, states):
+        threads = [threading.Thread(target=self.getCities, args=(state,)) for state in states]
+        for thread in threads:
+            thread.start()
+            for thread in threads:
+                thread.join()
 
     # populate the list of cities in each state
     def getCities(self, state):
         self.citiesPerState[state] = []
         app = '{}.html'.format(state)
         requestURL = self.homeURL + app
-        r = requests.get(requestURL)
+        header = RandomHeaders.LoadHeader()
+        try:
+            r = requests.get(requestURL, headers=header,timeout=10)
+        except:
+            print('timed out')
         r = r.content
-        soup = BeautifulSoup(r)
+        soup = BeautifulSoup(r, features='html.parser')
         tds = soup.find_all('td')
         for td in tds:
             hrefs = td.find_all('a', href=True)
@@ -52,48 +68,52 @@ class Importer():
                     if 'javascript' not in str(href):
                         if '<a href=\"/' not in str(href):
                             self.citiesPerState[state].append(href.get('href'))
-        self.getCityInfo(state, self.citiesPerState[state][0])
 
+        print(self.citiesPerState)
 
-    # make all requests for a state to get an href to every city in every state
-    def getAllCities(self, states):
-        threads = [threading.Thread(target=self.makeRequest, args=(state,)) for state in states]
-
-        for thread in threads:
+        '''
+            thread the gathering of individual city information from every
+            city in the list of cities for a given state
+        '''
+        threads = [threading.Thread(target=self.getCityInfo, args=(city,)) for city in self.citiesPerState[state]]
+        for i, thread in enumerate(threads):
             thread.start()
-        for thread in threads:
+        for i, thread in enumerate(threads):
             thread.join()
 
-    def getCityInfo(self, state, city):
-        requestURL = self.homeURL + self.citiesPerState[state][0]
-        r = requests.get(requestURL)
-        r=r.content
-        soup = BeautifulSoup(r)
-        self.handleSoup(soup)
+    # get the city infor given a city name and a state
+    def getCityInfo(self, city):
+        requestURL = self.homeURL + city
+        header = RandomHeaders.LoadHeader()
+        r = requests.get(requestURL, headers=header)
+        r = r.content
+        soup = BeautifulSoup(r, features='html.parser')
+        print(soup.prettify)
+        self.extractCityInformation(soup)
 
     # function to cleanse the soup of the webpage
-    def handleSoup(self, soup):
-        cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
-        populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
-        medianAge = soup.find_all('section', {'class':'median-age'})[0].text
-        zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
-        medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
-        costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
-        df_marks = df_marks.append(new_row, ignore_index=True)
-        # newRow = {}
-        self.df = df.append({'cityPopulation'   : cityPopulation,
-                            'populationBySex'   : populationBySex,
-                            'medianAge'         : medianAge,
-                            'zipCodes'          : zipCodes,
-                            'medianIncome'      : medianIncome,
-                            'costOfLiving'      : costOfLiving
-                            })
-        print(cityPopulation)
-        print(populationBySex)
-        print(medianAge)
-        print(zipCodes)
-        print(medianIncome)
-        print(costOfLiving)
+    def extractCityInformation(self, soup):
+        # cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
+        # populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
+        # medianAge = soup.find_all('section', {'class':'median-age'})[0].text
+        # zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
+        # medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
+        # costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
+        response = {}
+        for dimension in self.dimensions:
+            try:
+                response[dimension] = soup.find_all('section', {'class' : dimension})[0].text
+            except:
+                print('ERROR NAN')
+                response[dimension] = 'NaN'
+
+        self.df = self.df.append({'cityPopulation'  : response['cityPopulation'],
+                            'populationBySex'       : response['populationBySex'],
+                            'medianAge'             : response['medianAge'],
+                            'zipCodes'              : response['zipCodes'],
+                            'medianIncome'          : response['medianIncome'],
+                            'costOfLiving'          : response['costOfLiving']
+                            }, ignore_index=True)
 
 if __name__ == '__main__':
     i = Importer()
