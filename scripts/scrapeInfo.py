@@ -89,8 +89,8 @@ class Importer():
                                 print('MADE THREADS')
                                 for i, thread in enumerate(threads):
                                     thread.start()
-                                    for i, thread in enumerate(threads):
-                                        thread.join()
+                                for i, thread in enumerate(threads):
+                                    thread.join()
         except:
             print('timed out')
 
