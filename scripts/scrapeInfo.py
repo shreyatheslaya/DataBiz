@@ -154,7 +154,7 @@ class Importer():
                                     'zipCodes'              : zipCodes,
                                     'medianIncome'          : medianIncome,
                                     'costOfLiving'          : costOfLiving
-                                    }, ignore_index=True)
+                                    }, ignore_index=True, sort=False)
 
         # self.df = self.df.append({  'state'                 : response['state'],
         #                             'city'                  : response['city'],
