@@ -80,27 +80,30 @@ class Importer():
                         if 'javascript' not in str(href):
                             if '<a href=\"/' not in str(href):
                                 self.citiesPerState[state].append(href.get('href'))
-
-                                '''
-                                thread the gathering of individual city information from every
-                                city in the list of cities for a given state
-                                '''
-                                threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state]]
-                                print('MADE THREADS')
-                                for i, thread in enumerate(threads):
-                                    thread.start()
-                                for i, thread in enumerate(threads):
-                                    thread.join()
         except:
             print('timed out')
 
+        '''
+        thread the gathering of individual city information from every
+        city in the list of cities for a given state
+        '''
+        threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state]]
+        print('MADE THREADS')
+        for i, thread in enumerate(threads):
+            thread.start()
+            for i, thread in enumerate(threads):
+                thread.join()
+
     # get the city infor given a city name and a state
     def getCityInfo(self, state, city):
-        requestURL = self.homeURL + city
-        r = requests.get(requestURL)
-        r = r.content
-        soup = BeautifulSoup(r, features='html.parser')
-        self.extractCityInformation(state, city, soup)
+        try:
+            requestURL = self.homeURL + city
+            r = requests.get(requestURL)
+            r = r.content
+            soup = BeautifulSoup(r, features='html.parser')
+            self.extractCityInformation(state, city, soup)
+        except:
+            pass
 
     # function to cleanse the soup of the webpage
     def extractCityInformation(self, state, city, soup):
