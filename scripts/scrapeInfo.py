@@ -30,7 +30,6 @@ class Importer():
     def __init__(self):
         self.getProxies()
         self.getAllCities([self.states[0]])
-        print(self.df.describe)
         self.df.to_csv('out.csv')
 
 
@@ -43,8 +42,8 @@ class Importer():
         for row in proxies_table.tbody.find_all('tr'):
             proxyToAppend = '{}:{}'.format(row.find_all('td')[0].string, row.find_all('td')[1].string)
             self.proxies.append({
-                            'https://':   row.find_all('td')[0].string,
-                            'port': row.find_all('td')[1].string
+                            'https://':   'https://{}'.format(proxyToAppend),
+                            'http://': row.find_all('td')[0].string,
             })
         print('Proxies Retrieved\n')
 
@@ -135,6 +134,17 @@ class Importer():
         except:
             costOfLiving = 'NaN'
 
+        entry = {                   'state'                 : state,
+                                    'city'                  : city,
+                                    'cityPopulation'        : cityPopulation,
+                                    'populationBySex'       : populationBySex,
+                                    'medianAge'             : medianAge,
+                                    'zipCodes'              : zipCodes,
+                                    'medianIncome'          : medianIncome,
+                                    'costOfLiving'          : costOfLiving
+                                    }
+
+        print(entry)
 
         self.df = self.df.append({  'state'                 : state,
                                     'city'                  : city,
@@ -144,7 +154,7 @@ class Importer():
                                     'zipCodes'              : zipCodes,
                                     'medianIncome'          : medianIncome,
                                     'costOfLiving'          : costOfLiving
-                            }, ignore_index=True)
+                                    }, ignore_index=True)
 
         # self.df = self.df.append({  'state'                 : response['state'],
         #                             'city'                  : response['city'],
