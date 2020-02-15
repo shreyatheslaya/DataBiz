@@ -105,18 +105,20 @@ class Importer():
         responses = {}
 
         for dimension in self.dimensions:
-            print('DIMENSION:\t{}'.format(soup.find_all('section', {'class' : dimension})[0].text))
+            cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
+            populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
+            medianAge = soup.find_all('section', {'class':'median-age'})[0].text
+            zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
+            medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
+            costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
+            print(cityPopulation)
+            print(populationBySex)
+            # print('DIMENSION:\t{}'.format(soup.find_all('section', {'class' : dimension})[0].text))
             try:
                 respones[dimension] = soup.find_all('section', {'class' : dimension})[0].text
             except:
                 response[dimension] = 'NaN'
 
-        # cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
-        # populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
-        # medianAge = soup.find_all('section', {'class':'median-age'})[0].text
-        # zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
-        # medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
-        # costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
 
         self.df = self.df.append({  'state'                 : response['state'],
                                     'city'                  : response['city'],
