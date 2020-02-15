@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <title>Hello from Flask</title>
+	{% if name %}
+  <h1>Hello {{ name }}!</h1>
+	{% else %}
+  <h1>Hello, World!</h1>
+	{% endif %}
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</head>
+<body >
+  <style media="screen">
+    .arrow{
+      width: 50px;
+      margin: 15px;
+    }
+
+    .album {
+      border-radius: 25px;
+    }
+
+    .top-container{
+      padding: 25px;
+    }
+
+   
+
+    .logo-img{
+      width: 50%;
+      margin-bottom: 20px;
+    }
+
+    h1{
+      color: #00004E;
+    }
+
+    h3{
+      color: #00004E;
+    }
+
+    body{
+      background: rgb(36,0,0);
+	background: linear-gradient(90deg, rgba(36,0,0,0.9784956218815651) 0%, rgba(121,9,38,1) 35%, rgba(255,0,10,1) 100%);
+      height: 100%;
+      margin: 0;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    html{
+      height: 100%;
+    }
+
+  </style>
+
+
+  <nav class="navbar navbar-light bg-light">
+
+    <a class="navbar-brand" href="#"><b>VTHacks7</b></a>
+
+  </nav>
+
+  <div class="container top-container">
+    <div class="row">
+      <img src="/static/dataViz.png" class="mx-auto logo-img">
+    </div>
+  </div>
+
+
+
+
+   <footer class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#"></a>
+    <ul class="navbar-nav ml-auto"><img src="/static/dataViz.png" class="mx-auto logo-img" style="width:300px;"></ul>
+    <ul class="navbar-nav ml-auto"><img src="/static/dataViz.png" class="mx-auto logo-img" style="width:300px;"></ul>
+    <ul class="navbar-nav ml-auto"><img src="/static/dataViz.png" class="mx-auto logo-img" style="width:300px;"></ul>
+    <ul class="navbar-nav ml-auto"><img src="/static/dataViz.png" class="mx-auto logo-img" style="width:300px;"></ul>
+  </footer>
+
+</body>
+</html>
