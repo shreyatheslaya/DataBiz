@@ -97,7 +97,7 @@ class Importer():
     # get the city infor given a city name and a state
     def getCityInfo(self, state, city):
         requestURL = self.homeURL + city
-        r = requests.get(requestURL, headers=header)
+        r = requests.get(requestURL)
         r = r.content
         soup = BeautifulSoup(r, features='html.parser')
         self.extractCityInformation(state, city, soup)
