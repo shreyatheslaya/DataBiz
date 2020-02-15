@@ -60,8 +60,8 @@ class Importer():
         threads = [threading.Thread(target=self.getCities, args=(state,)) for state in states]
         for thread in threads:
             thread.start()
-            for thread in threads:
-                thread.join()
+        for thread in threads:
+            thread.join()
 
     # populate the list of cities in each state
     def getCities(self, state):
