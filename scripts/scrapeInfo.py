@@ -65,6 +65,7 @@ class Importer():
 
     # populate the list of cities in each state
     def getCities(self, state):
+        print('Getting State:\t{}'.format(state))
         self.citiesPerState[state] = []
         app = '{}.html'.format(state)
         requestURL = self.homeURL + app
@@ -102,6 +103,7 @@ class Importer():
             r = r.content
             soup = BeautifulSoup(r, features='html.parser')
             self.extractCityInformation(state, city, soup)
+            print('Got City:\t{}'.format(city))
         except:
             pass
 
