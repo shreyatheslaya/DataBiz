@@ -103,8 +103,10 @@ class Importer():
     def extractCityInformation(self, state, city, soup):
 
         responses = {}
-
-        cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
+        try:
+            cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
+        except:
+            cityPopulation = 'NaN'
         # for dimension in self.dimensions[2:]:
             # populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
             # medianAge = soup.find_all('section', {'class':'median-age'})[0].text
@@ -120,9 +122,9 @@ class Importer():
             #     response[dimension] = 'NaN'
 
 
-        self.df = self.df.append({  'state'                 : response['state'],
-                                    'city'                  : response['city'],
-                                    'cityPopulation'        : response['cityPopulation']
+        self.df = self.df.append({  'state'                 : state,
+                                    'city'                  : city,
+                                    'cityPopulation'        : cityPopulation
                             }, ignore_index=True)
 
         # self.df = self.df.append({  'state'                 : response['state'],
