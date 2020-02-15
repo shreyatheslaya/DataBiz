@@ -104,8 +104,8 @@ class Importer():
 
         responses = {}
 
-        for dimension in self.dimensions[2:]:
-            # cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
+        cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
+        # for dimension in self.dimensions[2:]:
             # populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
             # medianAge = soup.find_all('section', {'class':'median-age'})[0].text
             # zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
@@ -114,21 +114,26 @@ class Importer():
             # print(cityPopulation)
             # print(populationBySex)
             # print('DIMENSION:\t{}'.format(soup.find_all('section', {'class' : dimension})[0].text))
-            try:
-                respones[dimension] = soup.find_all('section', {'class' : dimension})[0].text
-            except:
-                response[dimension] = 'NaN'
+            # try:
+            #     respones[dimension] = soup.find_all('section', {'class' : dimension})[0].text
+            # except:
+            #     response[dimension] = 'NaN'
 
 
         self.df = self.df.append({  'state'                 : response['state'],
                                     'city'                  : response['city'],
-                                    'cityPopulation'        : response['cityPopulation'],
-                                    'populationBySex'       : response['populationBySex'],
-                                    'medianAge'             : response['medianAge'],
-                                    'zipCodes'              : response['zipCodes'],
-                                    'medianIncome'          : response['medianIncome'],
-                                    'costOfLiving'          : response['costOfLiving']
+                                    'cityPopulation'        : response['cityPopulation']
                             }, ignore_index=True)
+
+        # self.df = self.df.append({  'state'                 : response['state'],
+        #                             'city'                  : response['city'],
+        #                             'cityPopulation'        : response['cityPopulation'],
+        #                             'populationBySex'       : response['populationBySex'],
+        #                             'medianAge'             : response['medianAge'],
+        #                             'zipCodes'              : response['zipCodes'],
+        #                             'medianIncome'          : response['medianIncome'],
+        #                             'costOfLiving'          : response['costOfLiving']
+        #                     }, ignore_index=True)
 
 if __name__ == '__main__':
     i = Importer()
