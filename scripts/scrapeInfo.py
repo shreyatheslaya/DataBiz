@@ -68,8 +68,6 @@ class Importer():
         self.citiesPerState[state] = []
         app = '{}.html'.format(state)
         requestURL = self.homeURL + app
-        proxy = self.proxies[random.randint(0, len(self.proxies))]
-        proxyDict = {'https': 'https://' + proxy['ip'] + ':' + proxy['port']}
         try:
             r = requests.get(requestURL)
             r = r.content
