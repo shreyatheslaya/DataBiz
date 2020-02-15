@@ -30,6 +30,7 @@ class Importer():
     def __init__(self):
         self.getProxies()
         self.getAllCities([self.states[0]])
+        print(self.df.describe)
         self.df.to_csv('out.csv')
 
 
@@ -82,9 +83,9 @@ class Importer():
         '''
         threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state]]
         print('MADE THREADS')
-        for i, thread in enumerate(threads):
+        for thread in threads:
             thread.start()
-        for i, thread in enumerate(threads):
+        for thread in threads:
             thread.join()
 
     # get the city infor given a city name and a state
