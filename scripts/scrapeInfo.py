@@ -2,21 +2,12 @@ import requests
 from bs4 import BeautifulSoup
 import threading
 import pandas as pd
+import random
 
 class Importer():
 
-    '''
-    print(cityPopulation)
-    print(populationBySex)
-    print(medianAge)
-    print(zipCodes)
-    print(medianIncome)
-    print(costOfLiving)
-    '''
-
     # pandas dataframe that we are goin to add all city data to
     dimensions = ['states', 'city', 'cityPopulation', 'populationBySex', 'medianAge', 'zipCodes', 'medianIncome', 'costOfLiving']
-    # dimensions = ['state', 'city', 'page']
     df = pd.DataFrame(columns=dimensions)
 
     # base url of the website
@@ -38,8 +29,8 @@ class Importer():
 
     def __init__(self):
         self.getProxies()
-        self.getAllCities(self.states)
-        self.df.to_csv('out.csv', sep='\t', encoding='utf-8')
+        self.getAllCities([self.states[0]])
+        self.df.to_csv('out.csv')
 
 
     def getProxies(self):
@@ -49,9 +40,10 @@ class Importer():
 
         # Save proxies in the array
         for row in proxies_table.tbody.find_all('tr'):
+            proxyToAppend = '{}:{}'.format(row.find_all('td')[0].string, row.find_all('td')[1].string)
             self.proxies.append({
-            'ip':   row.find_all('td')[0].string,
-            'port': row.find_all('td')[1].string
+                            'https://':   row.find_all('td')[0].string,
+                            'port': row.find_all('td')[1].string
             })
         print('Proxies Retrieved\n')
 
@@ -88,7 +80,7 @@ class Importer():
         thread the gathering of individual city information from every
         city in the list of cities for a given state
         '''
-        threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state]]
+        threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state][:5]]
         print('MADE THREADS')
         for i, thread in enumerate(threads):
             thread.start()
@@ -109,12 +101,22 @@ class Importer():
 
     # function to cleanse the soup of the webpage
     def extractCityInformation(self, state, city, soup):
-        cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
-        populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
-        medianAge = soup.find_all('section', {'class':'median-age'})[0].text
-        zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
-        medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
-        costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
+
+        responses = {}
+
+        for dimension in self.dimensions:
+            try:
+                respones[dimension] = soup.find_all('section', {'class' : 'city-population'})[0].text
+            except:
+                response[dimension] = 'NaN'
+
+        # cityPopulation = soup.find_all('section', {'class':'city-population'})[0].text
+        # populationBySex = soup.find_all('section', {'class':'population-by-sex'})[0].text
+        # medianAge = soup.find_all('section', {'class':'median-age'})[0].text
+        # zipCodes = soup.find_all('section', {'class':'zip-codes'})[0].text
+        # medianIncome = soup.find_all('section', {'class':'median-income'})[0].text
+        # costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
+
         # for dimension in self.dimensions:
         #     response[dimension] = dimension
         # for dimension in self.dimensions:
@@ -124,14 +126,14 @@ class Importer():
         #         print('ERROR NAN')
         #         response[dimension] = 'NaN'
 
-        self.df = self.df.append({  'state'                 : state,
-                                    'city'                  : city,
-                                    'cityPopulation'        : cityPopulation,
-                                    'populationBySex'       : populationBySex,
-                                    'medianAge'             : medianAge,
-                                    'zipCodes'              : zipCodes,
-                                    'medianIncome'          : medianIncome,
-                                    'costOfLiving'          : costOfLiving
+        self.df = self.df.append({  'state'                 : response['state'],
+                                    'city'                  : response['city'],
+                                    'cityPopulation'        : response['cityPopulation'],
+                                    'populationBySex'       : response['populationBySex'],
+                                    'medianAge'             : response['medianAge'],
+                                    'zipCodes'              : response['zipCodes'],
+                                    'medianIncome'          : response['medianIncome'],
+                                    'costOfLiving'          : response['costOfLiving']
                             }, ignore_index=True)
 
 if __name__ == '__main__':
