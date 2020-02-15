@@ -112,7 +112,7 @@ class Importer():
         # costOfLiving = soup.find_all('section', {'class':'cost-of-living-index'})[0].text
         response = {'state' : state,
                     'city'  : city,
-                    'page'  : page}
+                    'page'  : soup}
         self.df = self.df.append(response, ignore_index=True)
         # for dimension in self.dimensions:
         #     response[dimension] = dimension
