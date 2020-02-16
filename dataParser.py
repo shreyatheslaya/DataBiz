@@ -14,7 +14,7 @@ data['City Population'] = data['City Population'].map(lambda x: str(x)[str(x).fi
 data = data.rename(columns={"city": "City"})
 data['City'] = data['City'].str.lower()
 data['City'] = data['City'].replace('-', ' ', regex=True)
-data['City'] = data['City'].str.replace("alabama.html", "")
+data['City'] = data['City'].map(lambda x: x[:x.rfind(' ')])
 
 
 new = data['populationBySex'].str.split(")", n=1, expand = True)
