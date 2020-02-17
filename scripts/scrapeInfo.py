@@ -3,8 +3,14 @@ from bs4 import BeautifulSoup
 import threading
 import pandas as pd
 import random
+import csv
+# from fake_headers import Headers
 
 class Importer():
+    # header = Headers(
+    #     # generate any browser & os headeers
+    #     headers=False  # don`t generate misc headers
+    # )
 
     # pandas dataframe that we are goin to add all city data to
     dimensions = ['state', 'city', 'cityPopulation', 'populationBySex', 'medianAge', 'zipCodes', 'medianIncome', 'costOfLiving']
@@ -12,7 +18,9 @@ class Importer():
 
     # base url of the website
     homeURL = 'http://www.city-data.com/city/'
+    referrer = 'http://www.city-data.com'
 
+    tempProxies = open('proxies.txt').readlines()
     proxies = []
 
     # list of states to iterate through to get cities
@@ -29,23 +37,22 @@ class Importer():
 
     def __init__(self):
         self.getProxies()
-        self.getAllCities(self.states)
-        self.df.to_csv('out.csv')
+        # for state in self.states[:-2:-1]:
+        self.getAllCities(self.states[15:20])
+        self.df.to_csv('big.csv')
 
 
     def getProxies(self):
-        proxies_doc = requests.get('https://www.sslproxies.org/').content
-        soup = BeautifulSoup(proxies_doc, 'html.parser')
-        proxies_table = soup.find(id='proxylisttable')
-
-        # Save proxies in the array
-        for row in proxies_table.tbody.find_all('tr'):
-            proxyToAppend = '{}:{}'.format(row.find_all('td')[0].string, row.find_all('td')[1].string)
+        for proxy in self.tempProxies:
+            proxy = proxy.strip('\n')
             self.proxies.append({
-                            'https://':   'https://{}'.format(proxyToAppend),
-                            'http://': row.find_all('td')[0].string,
+                            'https://'  :   'https://{}'.format(proxy),
+                            'http://'   :   'http://{}'.format(proxy)
             })
+
         print('Proxies Retrieved\n')
+
+        print(self.proxies)
 
     # make all requests for a state to get an href to every city in every state
     def getAllCities(self, states):
@@ -61,8 +68,13 @@ class Importer():
         self.citiesPerState[state] = []
         app = '{}.html'.format(state)
         requestURL = self.homeURL + app
+        proxy = random.choice(self.proxies)
+
         try:
+            print(requestURL)
+            # r = requests.get(requestURL, proxies=prox)
             r = requests.get(requestURL)
+            print('MADE REQUEST:\t{}'.format(state))
             r = r.content
             soup = BeautifulSoup(r, features='html.parser')
             tds = soup.find_all('td')
@@ -73,25 +85,31 @@ class Importer():
                         if 'javascript' not in str(href):
                             if '<a href=\"/' not in str(href):
                                 self.citiesPerState[state].append(href.get('href'))
-        except:
-            print('timed out')
+        except Exception as e:
+            print(e)
 
         '''
         thread the gathering of individual city information from every
         city in the list of cities for a given state
         '''
         threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state]]
-        print('MADE THREADS')
         for thread in threads:
             thread.start()
         for thread in threads:
             thread.join()
 
+        filename = state + '.csv'
+        self.df.to_csv(filename)
+
     # get the city infor given a city name and a state
     def getCityInfo(self, state, city):
+        # header = self.header.generate()
+        proxy = random.choice(self.proxies)
         try:
             requestURL = self.homeURL + city
+            # r = requests.get(requestURL, proxies=proxy)
             r = requests.get(requestURL)
+            print(r)
             r = r.content
             soup = BeautifulSoup(r, features='html.parser')
             self.extractCityInformation(state, city, soup)
@@ -144,27 +162,7 @@ class Importer():
                                     'costOfLiving'          : costOfLiving
                                     }
 
-        print(entry)
-
-        self.df = self.df.append({  'state'                 : state,
-                                    'city'                  : city,
-                                    'cityPopulation'        : cityPopulation,
-                                    'populationBySex'       : populationBySex,
-                                    'medianAge'             : medianAge,
-                                    'zipCodes'              : zipCodes,
-                                    'medianIncome'          : medianIncome,
-                                    'costOfLiving'          : costOfLiving
-                                    }, ignore_index=True, sort=False)
-
-        # self.df = self.df.append({  'state'                 : response['state'],
-        #                             'city'                  : response['city'],
-        #                             'cityPopulation'        : response['cityPopulation'],
-        #                             'populationBySex'       : response['populationBySex'],
-        #                             'medianAge'             : response['medianAge'],
-        #                             'zipCodes'              : response['zipCodes'],
-        #                             'medianIncome'          : response['medianIncome'],
-        #                             'costOfLiving'          : response['costOfLiving']
-        #                     }, ignore_index=True)
+        self.df = self.df.append(entry, ignore_index=True, sort=False)
 
 if __name__ == '__main__':
     i = Importer()
