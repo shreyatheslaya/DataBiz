@@ -4,13 +4,10 @@ import threading
 import pandas as pd
 import random
 import csv
-# from fake_headers import Headers
+from multiprocessing import cpu_count
+from proxy_requests import ProxyRequests# from fake_headers import Headers
 
 class Importer():
-    # header = Headers(
-    #     # generate any browser & os headeers
-    #     headers=False  # don`t generate misc headers
-    # )
 
     # pandas dataframe that we are goin to add all city data to
     dimensions = ['state', 'city', 'cityPopulation', 'populationBySex', 'medianAge', 'zipCodes', 'medianIncome', 'costOfLiving']
@@ -20,11 +17,8 @@ class Importer():
     homeURL = 'http://www.city-data.com/city/'
     referrer = 'http://www.city-data.com'
 
-    tempProxies = open('proxies.txt').readlines()
-    proxies = []
-
     # list of states to iterate through to get cities
-    states = [  "Alabama","Alaska","Arizona","Arkansas","California","Colorado",
+    states = [  "Alabama","Alaska","Arizona","Arkansas","Colorado",
                 "Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois",
                 "Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland",
                 "Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana",
@@ -36,23 +30,23 @@ class Importer():
     citiesPerState = {}
 
     def __init__(self):
-        self.getProxies()
-        # for state in self.states[:-2:-1]:
-        self.getAllCities(self.states[15:20])
-        self.df.to_csv('big.csv')
+        self.getAllCities(self.states)
 
+        print(self.citiesPerState)
 
-    def getProxies(self):
-        for proxy in self.tempProxies:
-            proxy = proxy.strip('\n')
-            self.proxies.append({
-                            'https://'  :   'https://{}'.format(proxy),
-                            'http://'   :   'http://{}'.format(proxy)
-            })
+        for state in self.citiesPerState:
+            '''
+            thread the gathering of individual city information from every
+            city in the list of cities for a given state
+            '''
+            threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state]]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+            print('GOT STATE:\t{}'.format(state))
 
-        print('Proxies Retrieved\n')
-
-        print(self.proxies)
+            self.df.to_csv('big.csv')
 
     # make all requests for a state to get an href to every city in every state
     def getAllCities(self, states):
@@ -68,14 +62,14 @@ class Importer():
         self.citiesPerState[state] = []
         app = '{}.html'.format(state)
         requestURL = self.homeURL + app
-        proxy = random.choice(self.proxies)
 
         try:
             print(requestURL)
-            # r = requests.get(requestURL, proxies=prox)
-            r = requests.get(requestURL)
+            r = ProxyRequests(requestURL)
+            r.get()
+            # r = requests.get(requestURL)
             print('MADE REQUEST:\t{}'.format(state))
-            r = r.content
+            r = r.get_raw()
             soup = BeautifulSoup(r, features='html.parser')
             tds = soup.find_all('td')
             for td in tds:
@@ -88,28 +82,11 @@ class Importer():
         except Exception as e:
             print(e)
 
-        '''
-        thread the gathering of individual city information from every
-        city in the list of cities for a given state
-        '''
-        threads = [threading.Thread(target=self.getCityInfo, args=(state, city,)) for city in self.citiesPerState[state]]
-        for thread in threads:
-            thread.start()
-        for thread in threads:
-            thread.join()
-
-        filename = state + '.csv'
-        self.df.to_csv(filename)
-
     # get the city infor given a city name and a state
     def getCityInfo(self, state, city):
-        # header = self.header.generate()
-        proxy = random.choice(self.proxies)
         try:
             requestURL = self.homeURL + city
-            # r = requests.get(requestURL, proxies=proxy)
             r = requests.get(requestURL)
-            print(r)
             r = r.content
             soup = BeautifulSoup(r, features='html.parser')
             self.extractCityInformation(state, city, soup)
